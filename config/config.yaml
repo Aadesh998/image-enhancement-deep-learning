@@ -1,0 +1,47 @@
+defaults:
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog
+  - models: zerodce
+  - _self_
+
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  job:
+    chdir: false
+
+model_type: zerodce
+model: ${models.${model_type}}
+
+data:
+  base_dir: "frames"
+  train_split: 0.8
+  validation_split: 0.2
+  image_size: 256
+  batch_size: 16
+  num_workers: 4
+  train_path: "frames/*.png" 
+
+wandb:
+  project: "isro-moon-enhancement"
+  entity: null 
+  mode: "online"
+  log_freq: 10
+  save_model: true
+  save_code: true
+  tags: ["moon", "enhancement", "zerodce"]
+  notes: "Zero-DCE training on ISRO moon frames"
+
+training:
+  epochs: 50 
+  learning_rate: 1e-4
+  seed: 42
+  device: "cuda" 
+  save_dir: "saved_models"
+  
+experiment:
+  NAME: "moon_enhancement_v1"
+  DESCRIPTION: "Low-light enhancement of moon imagery using Zero-DCE"
