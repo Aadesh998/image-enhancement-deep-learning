@@ -1,8 +1,6 @@
 defaults:
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
-  - models: zerodce
-  - _self_
 
 hydra:
   run:
@@ -13,8 +11,21 @@ hydra:
   job:
     chdir: false
 
-model_type: zerodce
-model: ${models.${model_type}}
+model:
+  name: "Zero-DCE"
+  type: "enhancement"
+  network:
+    in_channels: 3
+    num_filters: 32
+    kernel_size: 3
+    stride: 1
+    padding: 1
+  loss_weights:
+    illumination_smoothness: 200
+    spatial_constancy: 1
+    color_constancy: 5
+    exposure: 10
+    exposure_mean_val: 0.6
 
 data:
   base_dir: "frames"
@@ -45,3 +56,4 @@ training:
 experiment:
   NAME: "moon_enhancement_v1"
   DESCRIPTION: "Low-light enhancement of moon imagery using Zero-DCE"
+

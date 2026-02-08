@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
 def train(cfg: DictConfig):
-    
+    wandb.login(api_key=cfg.wandb.api_key)
     wandb.init(
         project=cfg.wandb.project,
         entity=cfg.wandb.entity,
