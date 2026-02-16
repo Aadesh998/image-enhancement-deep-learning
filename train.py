@@ -9,7 +9,20 @@ from model import ZeroDCE
 from dataset import get_dataloaders
 from torchvision.utils import make_grid
 
-log = logging.getLogger(__name__)
+def yuv_to_rgb(yuv_tensor):
+    # Assume yuv_tensor is (B, 3, H, W) and in [0, 1]
+    # Y, Cb, Cr = yuv_tensor[:, 0, :, :], yuv_tensor[:, 1, :, :], yuv_tensor[:, 2, :, :]
+    
+    y = yuv_tensor[:, 0:1, :, :]
+    cb = yuv_tensor[:, 1:2, :, :]
+    cr = yuv_tensor[:, 2:3, :, :]
+    
+    r = y + 1.402 * (cr - 0.5)
+    g = y - 0.344136 * (cb - 0.5) - 0.714136 * (cr - 0.5)
+    b = y + 1.772 * (cb - 0.5)
+    
+    rgb = torch.cat([r, g, b], dim=1)
+    return torch.clamp(rgb, 0, 1)
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
 def train(cfg: DictConfig):
@@ -77,8 +90,15 @@ def train(cfg: DictConfig):
                 
                 if batch_idx == 0:
                     n_images = min(images.size(0), 4)
-                    orig_grid = make_grid(images[:n_images], nrow=n_images)
-                    enh_grid = make_grid(enhanced[:n_images], nrow=n_images)
+                    log_images = images[:n_images]
+                    log_enhanced = enhanced[:n_images]
+                    
+                    if cfg.data.color_space == "YUV":
+                        log_images = yuv_to_rgb(log_images)
+                        log_enhanced = yuv_to_rgb(log_enhanced)
+                        
+                    orig_grid = make_grid(log_images, nrow=n_images)
+                    enh_grid = make_grid(log_enhanced, nrow=n_images)
                     val_images_log = [wandb.Image(orig_grid, caption="Original"), wandb.Image(enh_grid, caption="Enhanced")]
 
         avg_val_loss = val_loss_total / len(val_loader)

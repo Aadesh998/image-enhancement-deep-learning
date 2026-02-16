@@ -14,6 +14,7 @@ hydra:
 model:
   name: "Zero-DCE"
   type: "enhancement"
+  color_space: ${data.color_space}
   network:
     in_channels: 3
     num_filters: 32
@@ -35,7 +36,8 @@ data:
   batch_size: 16
   num_workers: 4
   train_path: "frames/*.png" 
-
+  color_space: "YUV" 
+  
 wandb:
   project: "isro-moon-enhancement"
   entity: null 
@@ -48,7 +50,7 @@ wandb:
 
 training:
   epochs: 50 
-  learning_rate: 1e-4
+  learning_rate: 0.001 
   seed: 42
   device: "cuda" 
   save_dir: "saved_models"

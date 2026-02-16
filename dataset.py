@@ -6,9 +6,10 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 class MoonFrameDataset(Dataset):
-    def __init__(self, file_paths, image_size=256, transform=None):
+    def __init__(self, file_paths, image_size=256, transform=None, color_space="RGB"):
         self.file_paths = file_paths
         self.transform = transform
+        self.color_space = color_space
         self.resize = transforms.Resize((image_size, image_size))
         self.to_tensor = transforms.ToTensor()
         
@@ -19,9 +20,11 @@ class MoonFrameDataset(Dataset):
         image_path = self.file_paths[idx]
         try:
             image = Image.open(image_path).convert("RGB")
+            if self.color_space == "YUV":
+                image = image.convert("YCbCr")
         except Exception as e:
             print(f"Error loading image {image_path}: {e}")
-            image = Image.new("RGB", (256, 256))
+            image = Image.new("RGB" if self.color_space == "RGB" else "YCbCr", (256, 256))
             
         if self.transform:
             image = self.transform(image)
@@ -46,8 +49,8 @@ def get_dataloaders(cfg):
     
     print(f"Found {total_files} images. Split: {len(train_files)} train, {len(val_files)} val.")
     
-    train_dataset = MoonFrameDataset(train_files, image_size=cfg.data.image_size)
-    val_dataset = MoonFrameDataset(val_files, image_size=cfg.data.image_size)
+    train_dataset = MoonFrameDataset(train_files, image_size=cfg.data.image_size, color_space=cfg.data.color_space)
+    val_dataset = MoonFrameDataset(val_files, image_size=cfg.data.image_size, color_space=cfg.data.color_space)
     
     train_loader = DataLoader(
         train_dataset, 
