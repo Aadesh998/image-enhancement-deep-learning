@@ -2,42 +2,31 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class DCENet(nn.Module):
     def __init__(self, in_channels=3, num_filters=32, kernel_size=3, stride=1, padding=1):
         super(DCENet, self).__init__()
         
-        self.conv1 = self.dwise_conv(in_channels, num_filters)
-        self.conv2 = self.dwise_conv(num_filters, num_filters)
-        self.conv3 = self.dwise_conv(num_filters, num_filters)
-        self.conv4 = self.dwise_conv(num_filters, num_filters)
+        self.conv1 = nn.Conv2d(in_channels, num_filters, kernel_size, stride, padding)
+        self.conv2 = nn.Conv2d(num_filters, num_filters, kernel_size, stride, padding)
+        self.conv3 = nn.Conv2d(num_filters, num_filters, kernel_size, stride, padding)
+        self.conv4 = nn.Conv2d(num_filters, num_filters, kernel_size, stride, padding)
         
-        # After concat(conv4, conv3) -> 64 channels
-        self.conv5 = self.dwise_conv(num_filters * 2, num_filters)
-        
-        # After concat(conv5, conv2) -> 64 channels
-        self.conv6 = self.dwise_conv(num_filters * 2, num_filters)
-        
-        # After concat(conv6, conv1) -> 64 channels
-        self.conv7 = self.dwise_conv(num_filters * 2, 24)
-
-    def dwise_conv(self, in_channels, num_filters, kernel_size=3, stride=1, padding=1):
-        return nn.Sequential(
-            nn.Conv2d(in_channels, num_filters, kernel_size, stride, padding, groups=in_channels),
-            nn.Conv2d(num_filters, num_filters, kernel_size, stride, padding, groups=in_channels),
-            nn.LeakyReLU(negative_slope=0.2, inplace=True)
-        )
+        self.conv5 = nn.Conv2d(num_filters * 2, num_filters, kernel_size, stride, padding)
+        self.conv6 = nn.Conv2d(num_filters * 2, num_filters, kernel_size, stride, padding)
+        self.conv7 = nn.Conv2d(num_filters * 2, 24, kernel_size, stride, padding)
         
     def forward(self, x):
-        conv1 = self.conv1(x)
-        conv2 = self.conv2(conv1)
-        conv3 = self.conv3(conv2)
-        conv4 = self.conv4(conv3)
+        conv1 = F.relu(self.conv1(x))
+        conv2 = F.relu(self.conv2(conv1))
+        conv3 = F.relu(self.conv3(conv2))
+        conv4 = F.relu(self.conv4(conv3))
 
         int_con1 = torch.cat([conv4, conv3], dim=1)
-        conv5 = self.conv5(int_con1)
+        conv5 = F.relu(self.conv5(int_con1))
 
         int_con2 = torch.cat([conv5, conv2], dim=1)
-        conv6 = self.conv6(int_con2)
+        conv6 = F.relu(self.conv6(int_con2))
 
         int_con3 = torch.cat([conv6, conv1], dim=1)
         out = torch.tanh(self.conv7(int_con3))
@@ -47,7 +36,6 @@ class DCENet(nn.Module):
 # Loss Functions
 def color_constancy_loss(x, color_space="RGB"):
     if color_space == "YUV":
-        # In YUV, we want U and V to be close to 0.5 (neutral)
         mean_uv = x[:, 1:, :, :].mean(dim=(2, 3))
         loss = torch.mean((mean_uv - 0.5) ** 2)
         return loss
@@ -62,7 +50,6 @@ def color_constancy_loss(x, color_space="RGB"):
 
 def exposure_loss(x, mean_val=0.6, color_space="RGB"):
     if color_space == "YUV":
-        # In YUV, exposure is mainly about the Y channel
         x = x[:, 0:1, :, :]
     else:
         x = x.mean(dim=1, keepdim=True)

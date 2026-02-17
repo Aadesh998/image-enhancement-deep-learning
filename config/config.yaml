@@ -29,14 +29,19 @@ model:
     exposure_mean_val: 0.6
 
 data:
-  base_dir: "frames"
-  train_split: 0.8
+  base_dir: "data/lol_dataset/images/low"
+  train_split: 0.7
   validation_split: 0.2
+  test_split: 0.1
   image_size: 256
   batch_size: 16
   num_workers: 4
-  train_path: "frames/*.png" 
+  train_path: "data/lol_dataset/images/low/*.png" 
   color_space: "YUV" 
+  
+metrics:
+  calculate_ssim: true
+  calculate_psnr: true 
   
 wandb:
   project: "isro-moon-enhancement"
@@ -50,7 +55,7 @@ wandb:
 
 training:
   epochs: 50 
-  learning_rate: 0.001 
+  learning_rate: 1e-4
   seed: 42
   device: "cuda" 
   save_dir: "saved_models"
