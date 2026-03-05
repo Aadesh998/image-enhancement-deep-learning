@@ -22,11 +22,11 @@ model:
     stride: 1
     padding: 1
   loss_weights:
-    illumination_smoothness: 200
+    illumination_smoothness: 25
     spatial_constancy: 1
-    color_constancy: 5
+    color_constancy: 1
     exposure: 10
-    exposure_mean_val: 0.6
+    exposure_mean_val: 0.57
 
 data:
   base_dir: "data/lol_dataset/images/low"
@@ -36,16 +36,16 @@ data:
   image_size: 256
   batch_size: 16
   num_workers: 4
-  train_path: "data/lol_dataset/images/low/*.png" 
-  color_space: "YUV" 
-  
+  train_path: "data/lol_dataset/images/low/*.png"
+  color_space: "YCbCr"
+
 metrics:
   calculate_ssim: true
-  calculate_psnr: true 
-  
+  calculate_psnr: true
+
 wandb:
   project: "isro-moon-enhancement"
-  entity: null 
+  entity: null
   mode: "online"
   log_freq: 10
   save_model: true
@@ -54,13 +54,12 @@ wandb:
   notes: "Zero-DCE training on ISRO moon frames"
 
 training:
-  epochs: 50 
+  epochs: 50
   learning_rate: 1e-4
   seed: 42
-  device: "cuda" 
+  device: "cuda"
   save_dir: "saved_models"
-  
+
 experiment:
   NAME: "moon_enhancement_v1"
   DESCRIPTION: "Low-light enhancement of moon imagery using Zero-DCE"
-

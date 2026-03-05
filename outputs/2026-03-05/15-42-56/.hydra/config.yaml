@@ -1,0 +1,50 @@
+model:
+  name: Zero-DCE
+  type: enhancement
+  color_space: ${data.color_space}
+  network:
+    in_channels: 3
+    num_filters: 32
+    kernel_size: 3
+    stride: 1
+    padding: 1
+  loss_weights:
+    illumination_smoothness: 25
+    spatial_constancy: 1
+    color_constancy: 1
+    exposure: 10
+    exposure_mean_val: 0.57
+data:
+  base_dir: data/lol_dataset/images/low
+  train_split: 0.7
+  validation_split: 0.2
+  test_split: 0.1
+  image_size: 256
+  batch_size: 16
+  num_workers: 4
+  train_path: data/lol_dataset/images/low/*.png
+  color_space: YCbCr
+metrics:
+  calculate_ssim: true
+  calculate_psnr: true
+wandb:
+  project: isro-moon-enhancement
+  entity: null
+  mode: online
+  log_freq: 10
+  save_model: true
+  save_code: true
+  tags:
+  - moon
+  - enhancement
+  - zerodce
+  notes: Zero-DCE training on ISRO moon frames
+training:
+  epochs: 50
+  learning_rate: 0.0001
+  seed: 42
+  device: cuda
+  save_dir: saved_models
+experiment:
+  NAME: moon_enhancement_v1
+  DESCRIPTION: Low-light enhancement of moon imagery using Zero-DCE

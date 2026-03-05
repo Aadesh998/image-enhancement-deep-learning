@@ -5,7 +5,7 @@ from math import exp
 def calculate_psnr(img1, img2):
     mse = F.mse_loss(img1, img2)
     if mse == 0:
-        return float('inf')
+        return torch.tensor(float('inf'))
     return 10 * torch.log10(1.0 / mse)
 
 def gaussian(window_size, sigma):

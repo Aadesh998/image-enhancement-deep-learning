@@ -25,7 +25,7 @@ class MoonFrameDataset(Dataset):
             low_image = Image.open(low_image_path).convert("RGB")
             high_image = Image.open(high_image_path).convert("RGB")
 
-            if self.color_space == "YUV":
+            if self.color_space == "YCbCr":
                 low_image = low_image.convert("YCbCr")
                 high_image = high_image.convert("YCbCr")
                 

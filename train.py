@@ -10,6 +10,7 @@ from dataset import get_dataloaders
 from torchvision.utils import make_grid
 from metrics import calculate_ssim, calculate_psnr
 from post_processing import apply_post_processing
+from utils import ycbcr_to_rgb
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,21 +18,6 @@ logging.basicConfig(
 )
 
 log = logging.getLogger(__name__)
-
-def yuv_to_rgb(yuv_tensor):
-    # Assume yuv_tensor is (B, 3, H, W) and in [0, 1]
-    # Y, Cb, Cr = yuv_tensor[:, 0, :, :], yuv_tensor[:, 1, :, :], yuv_tensor[:, 2, :, :]
-    
-    y = yuv_tensor[:, 0:1, :, :]
-    cb = yuv_tensor[:, 1:2, :, :]
-    cr = yuv_tensor[:, 2:3, :, :]
-    
-    r = y + 1.402 * (cr - 0.5)
-    g = y - 0.344136 * (cb - 0.5) - 0.714136 * (cr - 0.5)
-    b = y + 1.772 * (cb - 0.5)
-    
-    rgb = torch.cat([r, g, b], dim=1)
-    return torch.clamp(rgb, 0, 1)
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
 def train(cfg: DictConfig):
@@ -79,10 +65,10 @@ def train(cfg: DictConfig):
             if batch_idx % cfg.wandb.log_freq == 0:
                 wandb.log({
                     "batch/train_loss": losses['total_loss'].item(),
-                    "batch/illumination": losses['loss_illumination'].item(),
+                    "batch/illumination": losses['loss_illum'].item(),
                     "batch/spatial": losses['loss_spatial'].item(),
                     "batch/color": losses['loss_color'].item(),
-                    "batch/exposure": losses['loss_exposure'].item()
+                    "batch/exposure": losses['loss_expo'].item()
                 })
         
         avg_train_loss = train_loss_total / len(train_loader)
@@ -122,11 +108,11 @@ def train(cfg: DictConfig):
                     log_enhanced = enhanced[:n_images]
                     log_enhanced_pp = enhanced_pp[:n_images]
                     
-                    if cfg.data.color_space == "YUV":
-                        log_low = yuv_to_rgb(log_low)
-                        log_high = yuv_to_rgb(log_high)
-                        log_enhanced = yuv_to_rgb(log_enhanced)
-                        log_enhanced_pp = yuv_to_rgb(log_enhanced_pp)
+                    if cfg.data.color_space == "YCbCr":
+                        log_low = ycbcr_to_rgb(log_low)
+                        log_high = ycbcr_to_rgb(log_high)
+                        log_enhanced = ycbcr_to_rgb(log_enhanced)
+                        log_enhanced_pp = ycbcr_to_rgb(log_enhanced_pp)
                         
                     orig_grid = make_grid(log_low, nrow=n_images)
                     high_grid = make_grid(log_high, nrow=n_images)

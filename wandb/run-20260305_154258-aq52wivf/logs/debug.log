@@ -1,0 +1,24 @@
+2026-03-05 15:42:58,756 INFO    MainThread:2912 [wandb_setup.py:_flush():81] Current SDK version is 0.24.2
+2026-03-05 15:42:58,757 INFO    MainThread:2912 [wandb_setup.py:_flush():81] Configure stats pid to 2912
+2026-03-05 15:42:58,757 INFO    MainThread:2912 [wandb_setup.py:_flush():81] Loading settings from environment variables
+2026-03-05 15:42:58,757 INFO    MainThread:2912 [wandb_init.py:setup_run_log_directory():717] Logging user logs to C:\Users\aadeshkumar\Documents\image-enhancement-deep-learning\wandb\run-20260305_154258-aq52wivf\logs\debug.log
+2026-03-05 15:42:58,757 INFO    MainThread:2912 [wandb_init.py:setup_run_log_directory():718] Logging internal logs to C:\Users\aadeshkumar\Documents\image-enhancement-deep-learning\wandb\run-20260305_154258-aq52wivf\logs\debug-internal.log
+2026-03-05 15:42:58,759 INFO    MainThread:2912 [wandb_init.py:init():844] calling init triggers
+2026-03-05 15:42:58,759 INFO    MainThread:2912 [wandb_init.py:init():849] wandb.init called with sweep_config: {}
+config: {'model': {'name': 'Zero-DCE', 'type': 'enhancement', 'color_space': 'YCbCr', 'network': {'in_channels': 3, 'num_filters': 32, 'kernel_size': 3, 'stride': 1, 'padding': 1}, 'loss_weights': {'illumination_smoothness': 25, 'spatial_constancy': 1, 'color_constancy': 1, 'exposure': 10, 'exposure_mean_val': 0.57}}, 'data': {'base_dir': 'data/lol_dataset/images/low', 'train_split': 0.7, 'validation_split': 0.2, 'test_split': 0.1, 'image_size': 256, 'batch_size': 16, 'num_workers': 4, 'train_path': 'data/lol_dataset/images/low/*.png', 'color_space': 'YCbCr'}, 'metrics': {'calculate_ssim': True, 'calculate_psnr': True}, 'wandb': {'project': 'isro-moon-enhancement', 'entity': None, 'mode': 'online', 'log_freq': 10, 'save_model': True, 'save_code': True, 'tags': ['moon', 'enhancement', 'zerodce'], 'notes': 'Zero-DCE training on ISRO moon frames'}, 'training': {'epochs': 50, 'learning_rate': 0.0001, 'seed': 42, 'device': 'cuda', 'save_dir': 'saved_models'}, 'experiment': {'NAME': 'moon_enhancement_v1', 'DESCRIPTION': 'Low-light enhancement of moon imagery using Zero-DCE'}, '_wandb': {}}
+2026-03-05 15:42:58,759 INFO    MainThread:2912 [wandb_init.py:init():892] starting backend
+2026-03-05 15:43:01,844 INFO    MainThread:2912 [wandb_init.py:init():895] sending inform_init request
+2026-03-05 15:43:01,873 INFO    MainThread:2912 [wandb_init.py:init():903] backend started and connected
+2026-03-05 15:43:01,874 INFO    MainThread:2912 [wandb_init.py:init():973] updated telemetry
+2026-03-05 15:43:01,905 INFO    MainThread:2912 [wandb_init.py:init():997] communicating run to backend with 90.0 second timeout
+2026-03-05 15:43:03,951 INFO    MainThread:2912 [wandb_init.py:init():1042] starting run threads in backend
+2026-03-05 15:43:03,996 INFO    MainThread:2912 [wandb_run.py:_console_start():2529] atexit reg
+2026-03-05 15:43:03,996 INFO    MainThread:2912 [wandb_run.py:_redirect():2377] redirect: wrap_raw
+2026-03-05 15:43:03,996 INFO    MainThread:2912 [wandb_run.py:_redirect():2446] Wrapping output streams.
+2026-03-05 15:43:03,996 INFO    MainThread:2912 [wandb_run.py:_redirect():2469] Redirects installed.
+2026-03-05 15:43:04,001 INFO    MainThread:2912 [wandb_init.py:init():1082] run started, returning control to user process
+2026-03-05 16:20:14,199 INFO    MainThread:2912 [wandb_run.py:_finish():2295] finishing run kaadesh18001-synergylabs/isro-moon-enhancement/aq52wivf
+2026-03-05 16:20:14,199 INFO    MainThread:2912 [wandb_run.py:_atexit_cleanup():2494] got exitcode: 0
+2026-03-05 16:20:14,200 INFO    MainThread:2912 [wandb_run.py:_restore():2476] restore
+2026-03-05 16:20:14,200 INFO    MainThread:2912 [wandb_run.py:_restore():2482] restore done
+2026-03-05 16:20:16,317 INFO    MainThread:2912 [wandb_run.py:_footer_sync_info():3871] logging synced files
