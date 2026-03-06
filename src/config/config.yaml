@@ -22,21 +22,21 @@ model:
     stride: 1
     padding: 1
   loss_weights:
-    illumination_smoothness: 25
+    illumination_smoothness: 200
     spatial_constancy: 1
     color_constancy: 1
     exposure: 10
     exposure_mean_val: 0.57
 
 data:
-  base_dir: "data/lol_dataset/images/low"
+  base_dir: "/teamspace/studios/this_studio/image-enhancement-deep-learning/data/lol_dataset/low"
   train_split: 0.7
   validation_split: 0.2
   test_split: 0.1
   image_size: 256
   batch_size: 16
   num_workers: 4
-  train_path: "data/lol_dataset/images/low/*.png"
+  train_path: "/teamspace/studios/this_studio/image-enhancement-deep-learning/data/lol_dataset/low/*.png"
   color_space: "YCbCr"
 
 metrics:

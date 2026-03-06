@@ -25,7 +25,7 @@ logging.basicConfig(
 
 log = logging.getLogger(__name__)
 
-
+# HYDRA_FULL_ERROR=1
 @hydra.main(version_base=None, config_path="../config", config_name="config")
 def train(cfg: DictConfig):
     wandb.login(
