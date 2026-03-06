@@ -8,10 +8,15 @@ import wandb
 from omegaconf import DictConfig, OmegaConf
 from torchvision.utils import make_grid
 
-from dataset import get_dataloaders
+import sys
+
+# Ensure src/ is in sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data import get_dataloaders
 from metrics import calculate_psnr, calculate_ssim
-from model import ZeroDCE
-from post_processing import apply_post_processing
+from models import ZeroDCE
+from processing import apply_post_processing
 from utils import ycbcr_to_rgb
 
 logging.basicConfig(
@@ -21,7 +26,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config")
+@hydra.main(version_base=None, config_path="../config", config_name="config")
 def train(cfg: DictConfig):
     wandb.login(
         key="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"
