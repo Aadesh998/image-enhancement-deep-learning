@@ -2,3 +2,6 @@ venv
 data
 __pycache__
 train.log
+wandb
+outputs
+__pycache__

@@ -42,7 +42,6 @@ class DCENet(nn.Module):
         return out
 
 
-# Loss Functions
 def color_constancy_loss(x, color_space="RGB"):
     if color_space == "YCbCr":
         mean_uv = x[:, 1:, :, :].mean(dim=(2, 3))
@@ -62,9 +61,7 @@ def color_constancy_loss(x, color_space="RGB"):
     return loss.mean()
 
 
-def exposure_loss(
-    x, mean_val=0.58, color_space="YCbCr"
-):  # lower mean_val slightly for moon dark bg
+def exposure_loss(x, mean_val=0.58, color_space="YCbCr"):
     if color_space == "YCbCr":
         # Use Y channel only
         gray = x[:, 0:1, :, :]
@@ -75,9 +72,8 @@ def exposure_loss(
     return ((mean - mean_val) ** 2).mean()
 
 
-def illumination_smoothness_loss(r):  # r is B×24×H×W
-    # Average the 24 channels → illumination-like map
-    illum_map = r.mean(dim=1, keepdim=True)  # B×1×H×W
+def illumination_smoothness_loss(r):
+    illum_map = r.mean(dim=1, keepdim=True)
 
     h_tv = torch.abs(illum_map[:, :, 1:, :] - illum_map[:, :, :-1, :]).sum()
     w_tv = torch.abs(illum_map[:, :, :, 1:] - illum_map[:, :, :, :-1]).sum()
