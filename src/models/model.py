@@ -160,10 +160,14 @@ class ZeroDCE(nn.Module):
         self.weights = cfg.loss_weights
 
     def get_enhanced_image_ycbcr(
-        self, x_rgb: torch.Tensor, r: torch.Tensor
+        self, x: torch.Tensor, r: torch.Tensor
     ) -> torch.Tensor:
 
-        x_ycbcr = rgb_to_ycbcr(x_rgb)
+        if self.color_space == "YCbCr":
+            x_ycbcr = x
+        else:
+            x_ycbcr = rgb_to_ycbcr(x)
+
         y = x_ycbcr[:, 0:1, :, :]
 
         enhanced_y = y.clone()
@@ -175,8 +179,10 @@ class ZeroDCE(nn.Module):
         enhanced_y = torch.clamp(enhanced_y, 0.0, 1.0)
 
         enhanced_ycbcr = torch.cat([enhanced_y, x_ycbcr[:, 1:]], dim=1)
-        enhanced_rgb = ycbcr_to_rgb(enhanced_ycbcr)
-        return enhanced_rgb
+        if self.color_space == "YCbCr":
+            return enhanced_ycbcr
+        else:
+            return ycbcr_to_rgb(enhanced_ycbcr)
 
     def chroma_preserve_loss(self, enhanced_ycbcr, input_ycbcr):
         diff = (enhanced_ycbcr[:, 1:] - input_ycbcr[:, 1:]).abs().mean()
@@ -188,17 +194,21 @@ class ZeroDCE(nn.Module):
         return enhanced, r
 
     def compute_losses(self, x, r, enhanced):
-        x_ycbcr = rgb_to_ycbcr(x)
-        enhanced_ycbcr = rgb_to_ycbcr(enhanced)
+        if self.color_space == "YCbCr":
+            x_ycbcr = x
+            enhanced_ycbcr = enhanced
+        else:
+            x_ycbcr = rgb_to_ycbcr(x)
+            enhanced_ycbcr = rgb_to_ycbcr(enhanced)
 
         loss_illum = (
             self.weights.illumination_smoothness * illumination_smoothness_loss(r)
         )
         loss_spatial = self.weights.spatial_constancy * self.spatial_loss_fn(
-            enhanced, x, "YCbCr"
+            enhanced, x, self.color_space
         )
         loss_color = self.weights.color_constancy * color_constancy_loss(
-            enhanced, "YCbCr"
+            enhanced, self.color_space
         )
         loss_expo = self.weights.exposure * exposure_loss(
             enhanced_ycbcr, self.weights.exposure_mean_val, "YCbCr"

@@ -100,29 +100,33 @@ def train(cfg: DictConfig):
                 losses = model.compute_losses(low_images, r, enhanced)
                 val_loss_total += losses["total_loss"].item()
 
-                # Apply Post-Processing
-                enhanced_pp = apply_post_processing(enhanced.clone())
+                # Apply Post-Processing (always returns RGB)
+                enhanced_pp = apply_post_processing(enhanced.clone(), color_space=cfg.data.color_space)
+
+                # Convert outputs to RGB for fair metric calculation and logging
+                if cfg.data.color_space == "YCbCr":
+                    eval_enhanced = ycbcr_to_rgb(enhanced)
+                    eval_high = ycbcr_to_rgb(high_images)
+                    eval_low = ycbcr_to_rgb(low_images)
+                else:
+                    eval_enhanced = enhanced
+                    eval_high = high_images
+                    eval_low = low_images
 
                 # Calculate Metrics against High Quality Reference
                 if cfg.metrics.calculate_ssim:
-                    val_ssim_total += calculate_ssim(enhanced, high_images).item()
-                    val_ssim_pp_total += calculate_ssim(enhanced_pp, high_images).item()
+                    val_ssim_total += calculate_ssim(eval_enhanced, eval_high).item()
+                    val_ssim_pp_total += calculate_ssim(enhanced_pp, eval_high).item()
                 if cfg.metrics.calculate_psnr:
-                    val_psnr_total += calculate_psnr(enhanced, high_images).item()
-                    val_psnr_pp_total += calculate_psnr(enhanced_pp, high_images).item()
+                    val_psnr_total += calculate_psnr(eval_enhanced, eval_high).item()
+                    val_psnr_pp_total += calculate_psnr(enhanced_pp, eval_high).item()
 
                 if batch_idx == 0:
                     n_images = min(low_images.size(0), 4)
-                    log_low = low_images[:n_images]
-                    log_high = high_images[:n_images]
-                    log_enhanced = enhanced[:n_images]
+                    log_low = eval_low[:n_images]
+                    log_high = eval_high[:n_images]
+                    log_enhanced = eval_enhanced[:n_images]
                     log_enhanced_pp = enhanced_pp[:n_images]
-
-                    if cfg.data.color_space == "YCbCr":
-                        log_low = ycbcr_to_rgb(log_low)
-                        log_high = ycbcr_to_rgb(log_high)
-                        log_enhanced = ycbcr_to_rgb(log_enhanced)
-                        log_enhanced_pp = ycbcr_to_rgb(log_enhanced_pp)
 
                     orig_grid = make_grid(log_low, nrow=n_images)
                     high_grid = make_grid(log_high, nrow=n_images)
@@ -197,14 +201,22 @@ def train(cfg: DictConfig):
             test_loss_total += losses["total_loss"].item()
 
             # Apply Post-Processing
-            enhanced_pp = apply_post_processing(enhanced.clone())
+            enhanced_pp = apply_post_processing(enhanced.clone(), color_space=cfg.data.color_space)
+
+            # Convert outputs to RGB for fair metric calculation
+            if cfg.data.color_space == "YCbCr":
+                eval_enhanced = ycbcr_to_rgb(enhanced)
+                eval_high = ycbcr_to_rgb(high_images)
+            else:
+                eval_enhanced = enhanced
+                eval_high = high_images
 
             if cfg.metrics.calculate_ssim:
-                test_ssim_total += calculate_ssim(enhanced, high_images).item()
-                test_ssim_pp_total += calculate_ssim(enhanced_pp, high_images).item()
+                test_ssim_total += calculate_ssim(eval_enhanced, eval_high).item()
+                test_ssim_pp_total += calculate_ssim(enhanced_pp, eval_high).item()
             if cfg.metrics.calculate_psnr:
-                test_psnr_total += calculate_psnr(enhanced, high_images).item()
-                test_psnr_pp_total += calculate_psnr(enhanced_pp, high_images).item()
+                test_psnr_total += calculate_psnr(eval_enhanced, eval_high).item()
+                test_psnr_pp_total += calculate_psnr(enhanced_pp, eval_high).item()
 
     avg_test_loss = test_loss_total / len(test_loader)
     avg_test_ssim = (
